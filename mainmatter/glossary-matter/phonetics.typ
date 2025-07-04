@@ -57,17 +57,17 @@ table(
   table.hline(start: 0),
 	[], table.cell(colspan: 5)[开尾],  table.cell(colspan: 4)[元音尾], table.cell(colspan: 4)[鼻音尾], 
   table.hline(start: 0),
-	table.cell(rowspan: 3, align: horizon + center)[开口], table.vline(start: 0), [i], [a], [e], [ee], [ae], table.vline(start: 0), [ai], [ei], [ao], [ou], table.vline(start: 0), [an], [en], [ang], [ong], 
+	table.cell(rowspan: 3, align: horizon + center)[开口], table.vline(start: 0), [i], [a], [], [ee], [ae], table.vline(start: 0), [ai], [ei], [ao], [ou], table.vline(start: 0), [an], [en], [ang], [ong], 
 
-	[[ɿ]], [[ɑ]], [[ᴇ]], [[ɘ]], [[æ]], [[ai]], [[əi]], [[au]], [[əu]], [[ã]], [[ən]], [[aŋ]], [[oŋ]], 
-	[磁], [茶], [各格], [尺], [拍撤], [丐], [社培], [冒], [勾], [肝], [森生], [缸], [梦洪], 
+	[[ɿ]], [[ɑ]], [], [[ɘ]], [[æ]], [[ai]], [[ei]], [[au]], [[əu]], [[ã]], [[ən]], [[aŋ]], [[oŋ]], 
+	[磁], [茶], [], [尺], [拍撤格], [丐], [社培], [冒], [勾], [肝], [森生], [缸], [梦洪], 
   table.hline(start: 0),
 	table.cell(rowspan: 3, align: horizon + center)[合口], [u], [ua], [o], [oe], [uae], [uai], [uei], [], [], [uan], [un], [uang], [], 
 
-	[[u]], [[uɑ]], [[o]], [[ʊ]], [[uæ]], [[uai]], [[uəi]], [], [], [[uã]], [[uən]], [[uaŋ]], [], 
+	[[u]], [[uɑ]], [[o]], [[ʊ]], [[uæ]], [[uai]], [[uei]], [], [], [[uã]], [[uən]], [[uaŋ]], [], 
 	[姑], [瓜], [歌], [国骨], [刮], [淮], [回], [], [], [观], [准春], [光], [], 
   table.hline(start: 0),
-	table.cell(rowspan: 3, align: horizon + center)[齐齿], [ii], [ia], [ioe], [ie], [iae], [iai], [], [iao], [iou], [ian], [in], [iang], [iong], 
+	table.cell(rowspan: 3, align: horizon + center)[齐齿], [ii], [ia], [yoe], [ie], [iae], [iai], [], [iao], [iou], [ian], [in], [iang], [iong], 
 
 	[[i]], [[iɑ]], [[yʊ]], [[ie]], [[iæ]], [[iɛi]], [], [[iau]], [[iəu]], [[iẽ]], [[in]], [[iaŋ]], [[ioŋ]], 
 	[祭借], [架], [却屈], [吉], [甲], [介], [], [较], [救], [鉴], [近敬], [绛], [穷容], 

@@ -1,6 +1,8 @@
 #import "../setting.typ": *
 #import "../fonts.typ": *
 #import "@preview/hydra:0.6.1": hydra, selectors, anchor
+#import "@preview/zh-kit:0.1.0": * 
+
 
 // 页面设置为 A4纸张，双栏布局:contentReference[oaicite:4]{index=4}
 #let background = rect(
@@ -9,7 +11,39 @@
   fill: gray,
 )
 
+// ==============SETTING==================
 
+// 页眉左上角换行
+#let header_size = 10
+
+// ==============COVER====================
+
+
+#include("glossary-matter/cover.typ")
+#pagebreak()
+
+
+// ==============PREFACE==================
+
+#include("glossary-matter/phonetics.typ")
+// ==============INDEX====================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =============CONTENT====================
 
 #let pinyin_sect = selectors.custom(
   heading.where(level: 3),
@@ -38,10 +72,11 @@
   // 
   let words_on_page = query(heading.where(level: 4)).filter(h => h.supplement == [#here().page()]).dedup()
 
-  
-  for word in words_on_page {
+  for (index, word) in words_on_page.enumerate() {
     [#word.body  ]
   }
+  
+  
   [
   #h(1fr) #hydra(pinyin_sect, use-last: false, skip-starting: true,
    prev-filter: (ctx, cands) => {

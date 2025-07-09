@@ -18,6 +18,7 @@ if [ $? -eq 0 ]; then
 else
   echo "❌ Typst compile failed."
   exit 1
+  
 fi
 
 # 4. Compile Phonetic book Typst to output folder

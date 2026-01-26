@@ -1,5 +1,5 @@
-#import "../../setting.typ": *
-#import "../../fonts.typ": *
+#import "../../doc/settings.typ": *
+#import "../../../assets/fonts.typ": *
 
 #align(center,
   text(20pt, font: ZhongSong)[*乐山话音系*] 

@@ -1,0 +1,24 @@
+[csv]
+fields = ["item", "pinyin", "yixie", "label", "class", "meaning"]
+delimiter = "|"
+
+[output]
+root = "list"
+entry_keys = ["item", "pinyin", "yixie", "mean"]
+
+[output.mean]
+fixed_fields = ["label", "class", "meaning"]
+example_columns = ["eg"]
+example_sep = ";"
+
+[escape]
+pinyin = false
+hanzi = true
+
+
+[pinyformate]
+style = "tone3" # choose from "tone3", "normal" "tone"
+
+
+[skipchars] # these chars don't get converted to zh-tw
+chars = ["糍", "漤", "?"]

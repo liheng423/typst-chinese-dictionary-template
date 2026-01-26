@@ -1,4 +1,4 @@
-#import "fonts.typ": font-family
+#import "assets/fonts.typ": font-family
 // #import "../src/lib.typ": define-config
 #import "@preview/simple-handout:0.1.0": define-config
 

@@ -25,8 +25,6 @@
     "New Computer Modern Math",
     "KaiTi",
   ),
-
-
 )
 
 #let ZhongSong = ((name: "Times New Roman", covers: "latin-in-cjk"), "STZhongSong",)
@@ -64,10 +62,16 @@
   if len <= 4 {
     22pt
   } else if len <= 6 {
-    20pt
-  } else if len <= 8 {
     18pt
-  } else {
+  } else if len <= 8 {
     16pt
+  } else {
+    14pt
   }
 }
+
+
+
+
+
+// ====================================================

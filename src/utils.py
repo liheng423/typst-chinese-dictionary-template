@@ -132,3 +132,20 @@ def jian2fan_escape(ch: str, escape_list: List[str]) -> str:
     if ch in escape_list:
         return ch
     return jian2fan(ch)
+
+def strip_brace_content(txt: str) -> str:
+    if not txt:
+        return ""
+    out = []
+    depth = 0
+    for ch in txt:
+        if ch == "{":
+            depth += 1
+            continue
+        if ch == "}":
+            if depth > 0:
+                depth -= 1
+            continue
+        if depth == 0:
+            out.append(ch)
+    return "".join(out)

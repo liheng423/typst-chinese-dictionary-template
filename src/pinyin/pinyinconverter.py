@@ -7,6 +7,10 @@ from sys import implementation
 from typing import Dict, List, Tuple
 from utils import is_cjk, load_rime_dict
 
+import logging
+
+logger = logging.getLogger(name=__name__)
+
 
 
 class PinyinConverter(ABC):
@@ -15,7 +19,6 @@ class PinyinConverter(ABC):
         self,
         text: str,
         style: str = "tone3",
-        heteronym: bool = False,
         seg_sep: str = " ",
     ) -> str:
         raise NotImplementedError
@@ -81,6 +84,24 @@ def _format_pinyin(piny: str, style: str) -> str:
     raise ValueError(f"Unknown style: {style}")
 
 
+def _consume_braced_text(
+    text: str,
+    i: int,
+    open_tag: str = "{",
+    close_tag: str = "}",
+) -> Tuple[str | None, int]:
+    if i + 1 < len(text) and text[i + 1] == open_tag:
+        pattern = r"^." + re.escape(open_tag) + r"([^" + re.escape(close_tag) + r"]*)" + re.escape(close_tag)
+        m = re.match(pattern, text[i:])
+        if not m:
+            return None, i
+        inner = m.group(1).strip()
+        if len(inner) != 1:
+            raise ValueError(f"Inline override must be exactly 1 char: '{inner}'")
+        return inner, i + m.end()
+    return None, i
+
+
 
 
 @dataclass
@@ -111,13 +132,13 @@ class ShupinConverter(PinyinConverter):
         self,
         ch: str,
         style: str,
-        heteronym: bool,
         errors: list[tuple[int, str]],
         idx: int,
     ) -> str | None:
         if ch in self.shupin_map:
             readings = self.shupin_map[ch]
-            chosen = "/".join(readings) if heteronym else readings[0]
+            chosen = "/".join(readings)
+            if self.is_polyphonic(ch): logger.warning(f"The character {ch} is polyphonic, which requires manual proof. ")
             return _format_pinyin(chosen, style)
         if is_cjk(ch):
             errors.append((idx, ch))
@@ -128,17 +149,36 @@ class ShupinConverter(PinyinConverter):
         self,
         text: str,
         style: str = "tone3",
-        heteronym: bool = False,
         seg_sep: str = " ",
         escape_char: str = "?",
+        embed_open: str = "{",
+        embed_close: str = "}",
     ) -> str:
         out = []
         errors = []
 
-        for idx, ch in enumerate(text):
-            converted = self.convert_char(ch, style, heteronym, errors, idx)
+        i = 0
+        while i < len(text):
+            inner, next_i = _consume_braced_text(text, i, open_tag=embed_open, close_tag=embed_close)
+            if inner is not None:
+                out.append(
+                    self.convert(
+                        inner,
+                        style=style,
+                        seg_sep=seg_sep,
+                        escape_char=escape_char,
+                        embed_open=embed_open,
+                        embed_close=embed_close,
+                    )
+                )
+                i = next_i
+                continue
+
+            ch = text[i]
+            converted = self.convert_char(ch, style, errors, i)
             if converted is not None:
                 out.append(converted)
+            i += 1
 
         if errors:
             detail = "; ".join([f"pos {pos}: '{c}'" for pos, c in errors])

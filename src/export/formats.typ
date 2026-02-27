@@ -2,12 +2,6 @@
 #import "utils.typ": *
 
 
-
-
-
-
-
-
 #let render-word-title(word, pinyin, benzi, idx) = {
     grid(
     columns: 2,

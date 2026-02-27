@@ -9,6 +9,7 @@ from pinyin.pinyinconverter import PinyinConverter
 from utils import jian2fan_escape, read_csv_rows, write_csv_rows, load_config_fields
 from utils import load_config_fields
 
+
 logger = logging.getLogger(name=__name__)
 
 
@@ -78,22 +79,57 @@ def convert_csv_column(
     #         seg_sep=seg_sep
     #     )
 
+  
+
+    def _apply_escape_map(segment: str) -> str:
+        if escape_keys:
+            for key in escape_keys:
+                segment = segment.replace(key, escape_map[key])
+        return segment
+
+    def _process_outside_braces(txt: str) -> str:
+        if not txt:
+            return ""
+        out = []
+        outside_buf = []
+        depth = 0
+
+        def flush_outside():
+            if not outside_buf:
+                return
+            converted = []
+            for ch in outside_buf:
+                converted.append(jian2fan_escape(ch, skip_list))
+            segment = _apply_escape_map("".join(converted))
+            out.append(segment)
+            outside_buf.clear()
+
+        for ch in txt:
+            if ch == "{":
+                if depth == 0:
+                    flush_outside()
+                depth += 1
+                out.append(ch)
+                continue
+            if ch == "}":
+                if depth > 0:
+                    depth -= 1
+                out.append(ch)
+                continue
+            if depth == 0:
+                outside_buf.append(ch)
+            else:
+                out.append(ch)
+
+        flush_outside()
+        return "".join(out)
+
     def _convert_text(txt):
         if txt is None:
             return ""
         txt = str(txt)
 
-        converted_chars = []
-        for ch in txt:
-            converted_chars.append(jian2fan_escape(ch, skip_list))
-        txt_for_convert = "".join(converted_chars)
-
-
-        if escape_keys:
-            for key in escape_keys:
-                txt_for_convert = txt_for_convert.replace(key, escape_map[key])
-
-        return txt_for_convert
+        return _process_outside_braces(txt)
     
 
     for row in rows:

@@ -3,9 +3,9 @@ import json
 import argparse
 from collections import defaultdict
 from typing import Dict
-from pinyin.typedef import GlossaryEntry
-from utils import safe_list_get
-from utils import load_config_section, is_hanzi, read_csv_rows
+from .typedef import GlossaryEntry
+from ..utils import safe_list_get
+from ..utils import load_config_section, is_hanzi, read_csv_rows
 import logging
 
 

@@ -3,14 +3,39 @@ import rtoml
 from pathlib import Path
 from typing import Union, Iterable
 
-from pinyinconverter import build_shupin_converter
+from .pinyinconverter import build_shupin_converter
 import logging
-from pinyin.pinyinconverter import PinyinConverter
-from utils import jian2fan_escape, read_csv_rows, write_csv_rows, load_config_fields
-from utils import load_config_fields
+from .pinyinconverter import PinyinConverter
+from ..utils import jian2fan_escape, read_csv_rows, write_csv_rows, load_config_fields
+from .text_utils import process_outside_braces
+
+LOG_NAME = "cvt_shupin"
 
 
-logger = logging.getLogger(name=__name__)
+class _DefaultRowFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        if not hasattr(record, "row"):
+            record.row = "-"
+        return True
+
+
+def _init_logging(log_path: str = "logs/cvt_shupin.log", level: int = logging.INFO) -> None:
+    logger_root = logging.getLogger(LOG_NAME)
+    if logger_root.handlers:
+        return
+    log_file = Path(log_path)
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    handler = logging.FileHandler(log_file, encoding="utf-8")
+    handler.addFilter(_DefaultRowFilter())
+    handler.setFormatter(
+        logging.Formatter("%(asctime)s %(levelname)s %(name)s row=%(row)s: %(message)s")
+    )
+    logger_root.setLevel(level)
+    logger_root.addHandler(handler)
+
+
+_init_logging()
+logger = logging.getLogger(LOG_NAME)
 
 
 def convert_csv_column(
@@ -58,29 +83,6 @@ def convert_csv_column(
         escape_map = data.get(escape_section, {})
     escape_keys = sorted(escape_map.keys(), key=len, reverse=True)
 
-
-    # def _convert(ch):
-    #     if ch in skip_set:
-    #         return ch
-    #     if ch == "?":
-    #         return ch
-    #     if converter.is_polyphonic(ch):
-    #         single = converter.convert(
-    #             text=ch,
-    #             style=style,
-    #             heteronym=False,
-    #             seg_sep=seg_sep
-    #         )
-    #         return single
-    #     return converter.convert(
-    #         text=ch,
-    #         style=style,
-    #         heteronym=heteronym,
-    #         seg_sep=seg_sep
-    #     )
-
-  
-
     def _apply_escape_map(segment: str) -> str:
         if escape_keys:
             for key in escape_keys:
@@ -90,39 +92,14 @@ def convert_csv_column(
     def _process_outside_braces(txt: str) -> str:
         if not txt:
             return ""
-        out = []
-        outside_buf = []
-        depth = 0
 
-        def flush_outside():
-            if not outside_buf:
-                return
+        def _convert_outside(segment: str) -> str:
             converted = []
-            for ch in outside_buf:
+            for ch in segment:
                 converted.append(jian2fan_escape(ch, skip_list))
-            segment = _apply_escape_map("".join(converted))
-            out.append(segment)
-            outside_buf.clear()
+            return _apply_escape_map("".join(converted))
 
-        for ch in txt:
-            if ch == "{":
-                if depth == 0:
-                    flush_outside()
-                depth += 1
-                out.append(ch)
-                continue
-            if ch == "}":
-                if depth > 0:
-                    depth -= 1
-                out.append(ch)
-                continue
-            if depth == 0:
-                outside_buf.append(ch)
-            else:
-                out.append(ch)
-
-        flush_outside()
-        return "".join(out)
+        return process_outside_braces(txt, _convert_outside)
 
     def _convert_text(txt):
         if txt is None:
@@ -132,8 +109,11 @@ def convert_csv_column(
         return _process_outside_braces(txt)
     
 
-    for row in rows:
-        row[dst_col] = converter.convert(_convert_text(row.get(src_col, "")))
+    for row_idx, row in enumerate(rows, start=1):
+        row[dst_col] = converter.convert(
+            _convert_text(row.get(src_col, "")),
+            log_ctx={"row": row_idx},
+        )
 
     if out_path is not None:
         out_path = Path(out_path)
@@ -147,8 +127,6 @@ def convert_csv_column(
 
     return rows
 
-
-# ------------------- 示例 -------------------
 if __name__ == "__main__":
     conv = build_shupin_converter("./assets/pinyin_schemes/shupin.dict.yaml")  
     
@@ -157,13 +135,13 @@ if __name__ == "__main__":
     # 四川話輸入法很有意思 事情,xxx,,...
     #
     rows_out = convert_csv_column(
-        csv_path="./library/product/sichuanfangyan-2.csv",
+        csv_path="./library/sichuanfangyan-test-2.csv",
         src_col="item",
         dst_col="pinyin",
         converter=conv,
         style="tone3",
         heteronym=False,
-        out_path="./library/sichaunfangyan-2-pinyin.csv",
+        out_path="./library/sichaunfangyan-test-2-sp.csv",
         source_lang="zh-cn",
         skip_chars=load_config_fields("./src/pinyin/configs.toml", section="skipchars", key="chars"),
         sep=load_config_fields("./src/pinyin/configs.toml", section="csv", key="delimiter")

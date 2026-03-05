@@ -1,0 +1,15 @@
+[db]
+host = "/tmp"
+port = 5432
+database = "dict"
+user = "blow"
+password = ""
+
+[csv]
+delimiter = "|"
+encoding = "utf-8"
+
+[table]
+schema = "public"
+name = ""   # 留空则用 CSV 文件名
+ 

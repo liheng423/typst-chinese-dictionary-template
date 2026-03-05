@@ -7,7 +7,7 @@ from typing import Dict
 from typedef import GlossaryEntry
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from utils import load_config_fields
+from ..utils import load_config_fields
 
 
 logger = logging.getLogger(name=__name__)
